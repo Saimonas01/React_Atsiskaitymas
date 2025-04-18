@@ -11,16 +11,32 @@ import User from './pages/User';
 import PrivateRoute from './routes/PrivateRoute';
 import styled, { createGlobalStyle } from 'styled-components';
 
+// Globaliniai stiliai – taikomi visam projektui
 const GlobalStyle = createGlobalStyle`
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
-  a { text-decoration: none; color: inherit; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
+// Centrinis konteineris visam turiniui
 const AppContainer = styled.div`
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 60px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 `;
 
 const App = () => (
@@ -30,11 +46,19 @@ const App = () => (
       <AppContainer>
         <Router>
           <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/add" element={<PrivateRoute><Add /></PrivateRoute>} />
-            <Route path="/user" element={<PrivateRoute><User /></PrivateRoute>} />
+            <Route path="/" element={<Layout><Home /></Layout>} />
+            <Route path="/register" element={<Layout><Register /></Layout>} />
+            <Route path="/login" element={<Layout><Login /></Layout>} />
+            <Route path="/add" element={
+              <PrivateRoute>
+                <Layout><Add /></Layout>
+              </PrivateRoute>
+            } />
+            <Route path="/user" element={
+              <PrivateRoute>
+                <Layout><User /></Layout>
+              </PrivateRoute>
+            } />
           </Routes>
         </Router>
       </AppContainer>

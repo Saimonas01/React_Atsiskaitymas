@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 const Main = styled.main`
   padding: 20px;
+  min-height: 60vh;
 `;
 
 const Layout = ({ children }) => (
