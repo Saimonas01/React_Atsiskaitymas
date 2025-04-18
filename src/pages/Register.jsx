@@ -14,12 +14,14 @@ const Form = styled.form`
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 `;
+
 const Input = styled.input`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
 `;
+
 const Button = styled.button`
   padding: 10px 20px;
   border: none;
@@ -35,21 +37,43 @@ const Button = styled.button`
 const Register = () => {
   const { register, DEFAULT_AVATAR } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', username: '', avatar: '', dob: '', password: '', confirm: '' });
+
+  const [form, setForm] = useState({
+    email: '',
+    username: '',
+    avatar: '',
+    dob: '',
+    password: '',
+    confirm: ''
+  });
+
   const [msg, setMsg] = useState(null);
 
-  const handle = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handle = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatar = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm(prev => ({ ...prev, avatar: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const submit = e => {
     e.preventDefault();
     const users = JSON.parse(localStorage.getItem('users') || '[]');
 
-    if (!validateEmail(form.email)) { setMsg('Neteisingas el. paštas'); return; }
-    if (users.some(u => u.email === form.email)) { setMsg('El. paštas užimtas'); return; }
-    if (users.some(u => u.username === form.username)) { setMsg('Vartotojo vardas užimtas'); return; }
-    if (!validatePassword(form.password)) { setMsg('Slaptažodis turi būti bent 8 simbolių, su raidėmis ir skaičiais'); return; }
-    if (form.password !== form.confirm) { setMsg('Slaptažodžiai nesutampa'); return; }
-    if (!validateDob(form.dob)) { setMsg('Turite būti bent 13 metų'); return; }
+    if (!validateEmail(form.email)) return setMsg('Neteisingas el. paštas');
+    if (users.some(u => u.email === form.email)) return setMsg('El. paštas užimtas');
+    if (users.some(u => u.username === form.username)) return setMsg('Vartotojo vardas užimtas');
+    if (!validatePassword(form.password)) return setMsg('Silpnas slaptažodis');
+    if (form.password !== form.confirm) return setMsg('Slaptažodžiai nesutampa');
+    if (!validateDob(form.dob)) return setMsg('Turite būti bent 13 metų');
 
     const newUser = {
       id: Date.now(),
@@ -59,6 +83,7 @@ const Register = () => {
       dob: form.dob,
       password: bcrypt.hashSync(form.password, 8),
     };
+
     register(newUser);
     navigate('/');
   };
@@ -70,7 +95,7 @@ const Register = () => {
       <Form onSubmit={submit}>
         <Input name="email" placeholder="Email" value={form.email} onChange={handle} required />
         <Input name="username" placeholder="Username" value={form.username} onChange={handle} required />
-        <Input name="avatar" placeholder="Avatar URL (optional)" value={form.avatar} onChange={handle} />
+        <Input type="file" accept="image/*" onChange={handleAvatar} />
         <Input type="date" name="dob" value={form.dob} onChange={handle} required />
         <Input type="password" name="password" placeholder="Password" value={form.password} onChange={handle} required />
         <Input type="password" name="confirm" placeholder="Confirm Password" value={form.confirm} onChange={handle} required />

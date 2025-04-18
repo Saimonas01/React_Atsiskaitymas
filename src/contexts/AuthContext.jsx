@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     if (stored) setUser(stored);
   }, []);
 
-  const register = newUser => {
+  const register = (newUser) => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
