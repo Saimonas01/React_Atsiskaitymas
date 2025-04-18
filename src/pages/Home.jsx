@@ -23,7 +23,7 @@ const Card = styled.div`
 
 const Button = styled.button`
   margin-top: 10px;
-  background: #ff4d4d;
+  background: #4a90e2;
   border: none;
   border-radius: 4px;
   padding: 6px 12px;
@@ -32,7 +32,19 @@ const Button = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: #d93636;
+    background: #357ab8;
+  }
+
+  &.delete {
+    background: #ff4d4d;
+
+    &:hover {
+      background: #d93636;
+    }
+  }
+
+  & + & {
+    margin-left: 10px;
   }
 `;
 
@@ -50,14 +62,35 @@ const Message = styled.p`
 `;
 
 const Home = () => {
-  const { posts, deletePost } = useContext(DataContext);
+  const { posts, deletePost, savePost, unsavePost } = useContext(DataContext);
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
+  const [savedIds, setSavedIds] = useState([]);
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const key = `${user.id}_saved`;
+      const savedPosts = JSON.parse(localStorage.getItem(key) || '[]');
+      const ids = savedPosts.map(p => p.id);
+      setSavedIds(ids);
+    }
+  }, [user]);
+
+  const toggleSave = (post) => {
+    if (!user) return;
+    if (savedIds.includes(post.id)) {
+      unsavePost(post.id);
+      setSavedIds(prev => prev.filter(id => id !== post.id));
+    } else {
+      savePost(post);
+      setSavedIds(prev => [...prev, post.id]);
+    }
+  };
 
   return (
     <>
@@ -75,6 +108,7 @@ const Home = () => {
             <Card key={p.id}>
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
+
               {p.image && (
                 <img
                   src={p.image}
@@ -89,8 +123,15 @@ const Home = () => {
                 />
               )}
 
-              {user && user.id === p.userId && (
-                <Button onClick={() => deletePost(p.id)}>🗑️ Ištrinti</Button>
+              {user && (
+                <div style={{ marginTop: '10px', display: 'flex' }}>
+                  {user.id === p.userId && (
+                    <Button className="delete" onClick={() => deletePost(p.id)}>🗑️ Ištrinti</Button>
+                  )}
+                  <Button onClick={() => toggleSave(p)}>
+                    {savedIds.includes(p.id) ? '❌ Atšaukti' : '💾 Išsaugoti'}
+                  </Button>
+                </div>
               )}
             </Card>
           ))}
