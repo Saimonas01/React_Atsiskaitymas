@@ -50,7 +50,6 @@ const User = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Apsauga – jei neprisijungęs
   if (!user) {
     return (
       <p style={{ textAlign: 'center', marginTop: '40px' }}>
